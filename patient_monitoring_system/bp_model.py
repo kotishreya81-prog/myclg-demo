@@ -1,0 +1,54 @@
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+class BPModel(nn.Module):
+    def __init__(self):
+        super(BPModel, self).__init__()
+
+        self.net = nn.Sequential(
+            nn.Linear(6, 32),
+            nn.ReLU(),
+            nn.Linear(32, 32),
+            nn.ReLU(),
+            nn.Linear(32, 2)  
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+
+
+if __name__ == "__main__":
+
+    print("Initializing Blood Pressure Model...")
+
+    model = BPModel()
+
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+    dummy_input = torch.randn(4, 6)
+
+    dummy_targets = torch.randn(4, 2) * 20 + 120  
+    print("Starting Dummy Training...")
+
+    for epoch in range(5):
+
+        optimizer.zero_grad()
+
+        outputs = model(dummy_input)
+
+        loss = criterion(outputs, dummy_targets)
+
+        loss.backward()
+        optimizer.step()
+
+        print(f"Epoch [{epoch+1}/5], Loss: {loss.item():.4f}")
+
+    print("\nTesting Inference...")
+
+    with torch.no_grad():
+        test_output = model(dummy_input)
+        print("Output Shape:", test_output.shape)
+        print("Predicted SBP/DBP:\n", test_output)
